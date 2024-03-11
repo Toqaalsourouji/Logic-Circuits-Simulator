@@ -1,28 +1,25 @@
-AND2, 2, i1&i2, 100ns
-OR2, 2, i1|i2, 100ns
-NAND2, 2, ~(i1&i2),50ns
-NOR2, 2, ~(i1|i2), 150ns
+AND, 2, i1&i2, 100ns
+OR, 2, i1|i2, 100ns
+NAND, 2, ~(i1&i2),50ns
+NOR, 2, ~(i1|i2), 150ns
 NOT, 1, ~(i1), 200ns
-XOR2, 2, (i1&~i2)|(~i1&i2), 300ns
-XNOR2, 2, (i1&i2)|(~i1&~i2), 50ns
-
-AND3, 3, i1&i2&i3, 150ns
-OR3, 3, i1|i2|i3, 150ns
-NAND3, 3, ~(i1&i2&i3),100ns
-NOR3, 3, ~(i1|i2|i3), 200ns
-XOR3, 3, (i1&~i2)|(~i1&i2), 350ns
-XNOR3, 3, (i1&i2&i3)|(~i1&~i2&~i3), 100ns
-
-AND4, 4, i1&i2&i3&i4, 200ns
-OR4, 4, i1|i2|i3|i4, 200ns
-NAND4, 4, ~(i1&i2&i3&i4),150ns
-NOR4, 4, ~(i1|i2|i3|i4), 250ns
-XOR4, 4, (i1 & ~i2 & ~i3 & ~i4) | (~i1 & i2 & ~i3 & ~i4) | (~i1 & ~i2 & i3 & ~i4) | (~i1 & ~i2 & ~i3 & i4) | (i1 & i2 & i3 & i4), 400ns
-XNOR4, 4, (i1&i2&i3&i4)|(~i1&~i2&~i3~i4), 150ns
-
-AND5, 5, i1&i2&i3&i4&i5, 250ns
-OR5, 5, i1|i2|i3|i4|i5, 250ns
-NAND5, 5, ~(i1&i2&i3&i4&i5),200ns
-NOR5, 5, ~(i1|i2|i3|i4|i5), 300ns
-XOR5, 5, (i1 & ~i2 & ~i3 & ~i4 & ~i5) | (~i1 & i2 & ~i3 & ~i4 & ~i5) | (~i1 & ~i2 & i3 & ~i4 & ~i5) | (~i1 & ~i2 & ~i3 & i4 & ~i5) | (~i1 & ~i2 & ~i3 & ~i4 & i5) | (i1 & i2 & i3 & i4 & i5), 450ns
-XNOR5, 5, (i1&i2&i3&i4&i5)|(~i1&~i2&~i3&~i4&~i5), 200ns
+XOR, 2, (i1&~i2)|(~i1&i2), 300ns
+XNOR, 2, (i1&i2)|(~i1&~i2), 50ns
+AND, 3, i1&i2&i3, 150ns
+OR, 3, i1|i2|i3, 150ns
+NAND, 3, ~(i1&i2&i3),100ns
+NOR, 3, ~(i1|i2|i3), 200ns
+XOR, 3, (i1&~i2)|(~i1&i2), 350ns
+XNOR, 3, (i1&i2&i3)|(~i1&~i2&~i3), 100ns
+AND, 4, i1&i2&i3&i4, 200ns
+OR, 4, i1|i2|i3|i4, 200ns
+NAND, 4, ~(i1&i2&i3&i4),150ns
+NOR, 4, ~(i1|i2|i3|i4), 250ns
+XOR, 4, (i1 & ~i2 & ~i3 & ~i4) | (~i1 & i2 & ~i3 & ~i4) | (~i1 & ~i2 & i3 & ~i4) | (~i1 & ~i2 & ~i3 & i4) | (i1 & i2 & i3 & i4), 400ns
+XNOR, 4, (i1&i2&i3&i4)|(~i1&~i2&~i3~i4), 150ns
+AND, 5, i1&i2&i3&i4&i5, 250ns
+OR, 5, i1|i2|i3|i4|i5, 250ns
+NAND, 5, ~(i1&i2&i3&i4&i5),200ns
+NOR, 5, ~(i1|i2|i3|i4|i5), 300ns
+XOR, 5, (i1 & ~i2 & ~i3 & ~i4 & ~i5) | (~i1 & i2 & ~i3 & ~i4 & ~i5) | (~i1 & ~i2 & i3 & ~i4 & ~i5) | (~i1 & ~i2 & ~i3 & i4 & ~i5) | (~i1 & ~i2 & ~i3 & ~i4 & i5) | (i1 & i2 & i3 & i4 & i5), 450ns
+XNOR, 5, (i1&i2&i3&i4&i5)|(~i1&~i2&~i3&~i4&~i5), 200ns
