@@ -252,6 +252,48 @@ void simulate(string filename, priority_queue<pair<int, string>>& eventManager, 
     file.close();
 }
 
+int main()
+{
+    // initializing input files
+    string libraryFile = "library.lib";
+    string circuitFile = "circuit.cir";
+    string stimuliFile = "stimuli.stim";
+    string simulationFile = "simulation.sim";
+
+    Circuit circuit;
+    unordered_map<string, Component> components;
+    
+    // parse the library file
+    parseLibraryFile(libraryFile, circuit.components);
+
+    // parse the cicuit file 
+    parseCircuitFile(circuitFile, circuit);
+
+    
+
+    // Initialize an event manger for managing simulation
+    priority_queue<pair<int, string>> eventManager;
+
+    // parse the stimuli file
+    simulate(stimuliFile, eventManager, circuit);
+
+    // open the output file for storing results 
+    ofstream simulationOutput(simulationFile);
+    if (!simulationOutput.is_open()) {
+        cout << "Unable to open file for simulation results" << simulationFile << endl;
+        return -1;
+    }
+
+    // run simulation 
+    circuit.simulate(eventManager, simulationOutput);
+
+    // close the simpulation output file
+    simulationOutput.close();
+    cout << "Simulation completed" << simulationFile << endl;
+
+
+}
+
 
 
 
