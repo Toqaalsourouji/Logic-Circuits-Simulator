@@ -141,6 +141,117 @@ public:
 
 
 };
+// parse library file
+
+void parseLibraryFile(const string& filename, unordered_map<string, Component>& components) {
+
+    ifstream file(filename);
+    if (!file)
+    {
+        cout << "Unable to open Library file " << filename << endl;
+        return;
+    }
+
+    string line;
+    while (getline(file, line))
+    {
+        istringstream ss(line);
+        string n, t, o;
+        int num_in, d;
+        ss >> n >> t >> num_in >> o >> d;
+
+        vector<string> inputs;
+        for (int i = 1; i <= num_in; ++i)
+        {
+            inputs.push_back("I" + to_string(i));
+        }
+
+        // Directly emplace the constructed Component object into the map.
+
+        components.emplace(n, Component(n, t, inputs, o, d));
+    }
+
+    file.close();
+};
+
+
+
+// parse circuit file 
+void parseCircuitFile(const string& filename, Circuit& circuit)
+{
+    ifstream file(filename);
+    if (!file)
+    {
+        cout << "Unable to open Circuit file" << filename << endl;
+        return;
+    }
+    string line;
+    while (getline(file, line))
+    {
+        stringstream ss(line);
+        string firstword;
+        ss >> firstword; // extracting the first word to determine the next step
+
+        if (firstword.empty()) continue; // skipping empty lines
+
+        if (firstword == "INPUTS:" || firstword == "COMPONENTS:")
+        {
+            string componentName, componentType;
+            vector<string> componentInputs;
+            string output;
+            int delay = 0;
+            string identifier;
+            while (getline(file, line) && !line.empty() && line.find(':') == string::npos)
+            {
+                ss.clear();
+                ss.str(line);
+                ss >> componentName >> componentType;
+                string in;
+                if (firstword == "INPUTS:")
+                {
+                    ss >> identifier;
+                    circuit.setInputsValue(identifier, 0);
+                }
+                else if (firstword == "COMPONENTS:")
+                {
+                    string n, in;
+                    vector<string> inputs;
+                    ss >> n; // Assuming the first word is the component name
+                    while (ss >> in) inputs.push_back(in);
+                    // Component object with the parsed info
+                    Component component(componentName, componentType, componentInputs, output, delay);
+                    circuit.connectCircuite(component);
+                }
+            }
+        }
+    }
+    file.close();
+}
+
+// parse simulation file
+
+void simulate(string filename, priority_queue<pair<int, string>>& eventManager, Circuit& circuit) {
+    ifstream file(filename);
+    if (!file) {
+        cout << "Unable to open simulation file" << filename << endl;
+        return;
+    }
+    string line;
+    while (getline(file, line)) {
+        int timestamp, value;
+        string in;
+        istringstream iss(line);
+        if (iss >> timestamp >> in >> value) { // Check if line parsing succeeded
+            circuit.setInputsValue(in, value);
+            eventManager.emplace(timestamp, "I" + in);
+        }
+        else {
+            cout << "Error parsing line: " << line << endl;
+        }
+    }
+    file.close();
+}
+
 
 
 
