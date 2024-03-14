@@ -7,8 +7,58 @@
 
 using namespace std;
 
+// Define the Component class
+class Component {
+public:
+    string name;
+    string type;
+    string output;
+    vector<string> inputs;
+    int delay;
 
+    Component() {}
 
+    Component(string name, string type, vector<string> inputs, string output, int delay) : name(name), type(type), inputs(inputs), output(output), delay(delay) {}
+
+    int evaluateLogic(unordered_map<string, int>& inputExepression)
+    {
+        int value = 1;
+        if (type != "NOT")
+        {
+            value = 0;
+        }
+        for (string in : inputs)
+        {
+            if (inputExepression.find(in) == inputExepression.end())
+            {
+                cerr << "Error: No input value for this input" << in << "\n";
+                return -1;
+            }
+            int input = inputExepression[in];
+            if (type == "AND")
+            {
+                value = value & input;
+            }
+            else if (type == "OR")
+            {
+                value = value | input;
+            }
+            else if (type == "NOT")
+            {
+                value = !input;
+            }
+            else if (type == "XOR")
+            {
+                value = value ^ input;
+            }
+            else if (type == "NAND")
+            {
+                value = !(value & input);
+            }
+        }
+        return value;
+    }
+};
 
 
 // Define the Circuit class
