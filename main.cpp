@@ -270,6 +270,13 @@ int main()
     parseCircuitFile(circuitFile, circuit);
 
     
+    for (auto& entry : circuit.components) {
+        Component& component = entry.second;
+        Component& lib_component = components[component.type];
+        component.output = lib_component.output;
+        component.delay = lib_component.delay;
+    }
+
 
     // Initialize an event manger for managing simulation
     priority_queue<pair<int, string>> eventManager;
