@@ -24,7 +24,7 @@ unordered_map<string, vector<string>> signalToGates;
 // Define a map to keep track of the current state (value) of each signal.
 unordered_map<string, int> signalStates;
 
-// Constructor for the CircuitSimulator class.
+// Constructor for the GateSimulator class.
 GateSimulator::GateSimulator(const string& libraryFile, const string& circuitFile, const string& stimuliFile)
 {
     cout << "Parsing Library File...\n";
