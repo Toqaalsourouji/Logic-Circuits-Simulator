@@ -56,7 +56,9 @@ This file tells the code at which time each input enters the circuit and with wh
 
 >[!CAUTION]
 > Until the time of which a value for a certain input is defined, it is assumed to have a value of zero. 
-This simulation file must follow the below structure: 
+
+
+The simulation file must follow the below structure: 
 ```
 1500, A, 1
 300, B, 1
@@ -71,7 +73,8 @@ delay[^1], input[^6], value[^7]
 After having the necessary files downloaded, you will right-click in the folder with the files, press more options and then click 'git bash here', and then write the following commands:
 
 ```
-
+$g++ -o sim CicuitSimulatior.cpp main.cpp
+$ ./sim lib.txt circuit2.cir stimuli.stim simulation.sim
 ```
 Then run the code and see the output. 
 
