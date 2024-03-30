@@ -120,3 +120,15 @@ void GateSimulator::parseCir(const string& filename)
     }
 }
 
+// Initialize gate outputs based on the initial states of their input signals.
+void GateSimulator::initializeOutputs()
+{
+    cout << "Initializing gate outputs based on initial states...\n";
+    for (auto& [gateName, gate] : gates)
+    {
+        // Evaluate the expression for each gate to determine its initial output value.
+        int initOutputValue = evaluateExpression(gate.outputExpr, gate.inputs);
+        // Update the state of the gate's output signal.
+        signalStates[gate.output] = initOutputValue;
+    }
+}
