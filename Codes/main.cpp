@@ -1,4 +1,4 @@
-#include "CircuitSimulator.h"
+#include "GateSimulator.h"
 #include "Event.h"
 #include "Gate.h"
 
