@@ -73,8 +73,8 @@ delay[^1], input[^6], value[^7]
 After having the necessary files downloaded, you will right-click in the folder with the files, press more options and then click 'git bash here', and then write the following commands:
 
 ```
-$g++ -o sim CicuitSimulatior.cpp main.cpp
-$ ./sim lib.txt circuit2.cir stimuli.stim simulation.sim
+$g++ -o sim GateSimulatior.cpp main.cpp
+$ ./sim lib.txt circuit2.cir stimuli.stim
 ```
 Then run the code and see the output. 
 
