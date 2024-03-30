@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
     // Create an instance of the CircuitSimulator class, passing in the file paths provided by the user.
     // This object will manage the setup and execution of the circuit simulation.
-    CircuitSimulator simulator(argv[1], argv[2], argv[3]);
+    GateSimulator simulator(argv[1], argv[2], argv[3]);
     // Start the simulation process. This function call initiates the reading of the input files,
     // sets up the simulation environment, and begins processing events.
     simulator.startSimulation();
