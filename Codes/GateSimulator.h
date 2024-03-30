@@ -24,23 +24,24 @@ public:
     void startSimulation();
     void printGateInfo(const Gate& gate);
     void printInitialState();
-    void printParsedCircuit();
-    void initializeOutputs();
+    void printParsedCircuitGates();
+    void initializeGateOutputs();
     void sortAndClean(const string& outputFile);
 
-    
+
 private:
     void parseLib(const string& filename);
     void parseCir(const string& filename);
     void parseStim(const string& filename);
     vector<string> infixToPostfix(const string& expression) const;
-     int evaluateExpression(const string& expression, const vector<string>& inputs);
+    int evaluateExpression(const string& expression, const vector<string>& inputs);
     void processEvents(const Event& event);
     void writeOutput(const string& signal, int value, int time); // Declaration of the new function
     string adaptExpression(const string& expression, const vector<string>& inputs);
 
-    
+
 
 };
 
-#endif // GATESIMULATOR_H
+#endif // GateSIMULATOR_H
+
