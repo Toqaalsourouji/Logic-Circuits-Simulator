@@ -45,6 +45,48 @@ GateSimulator::GateSimulator(const string& libraryFile, const string& circuitFil
 }
 
 
+// Parse the library file to read and store gate definitions.
+void GateSimulator::parseLib(const string& filename)
+{
+    // Attempt to open the library file for reading.
+    ifstream file(filename);
+    // Check if the file opened successfully.
+    if (!file.is_open())
+    {
+        // If not, report the error and return early.
+        cerr << "Failed to open library file: " << filename << endl;
+        return;
+    }
+
+    // Read the library file line by line.
+    string line;
+    while (getline(file, line))
+    {
+        // Parse each line to extract gate information.
+        istringstream ss(line);
+        string componentName, token;
+        int numOfInputs, delay;
+        string outputExpr;
+
+        // Extract the component name, number of inputs, logical expression, and delay from the line.
+        getline(ss, componentName, ',');
+        ss >> numOfInputs >> ws;  // Skip whitespace after numOfInputs
+        ss.ignore();  // Skip the comma after numOfInputs
+
+        getline(ss, outputExpr, ',');
+        ss >> delay;
+
+        // Create a Gate object and add it to the libraryGates map.
+        libraryGates[componentName] = Gate(componentName, vector<string>(numOfInputs, ""), "", outputExpr, delay);
+
+        // Print the parsed gate information for debugging.
+        cout << "Parsed gate: " << componentName
+            << " with expression: " << libraryGates[componentName].outputExpr
+            << " and delay: " << delay << endl;
+    }
+}
+
+
 // Parse the circuit file to configure the simulation's gates and their connections.
 void GateSimulator::parseCir(const string& filename)
 {
@@ -120,6 +162,69 @@ void GateSimulator::parseCir(const string& filename)
     }
 }
 
+
+// Print the configured gates and their connections for debugging purposes.
+void GateSimulator::printParsedCircuit()
+{
+    cout << "Parsed Gates from Circuit File:" << endl;
+    for (const auto& [name, gate] : gates) // Loop through each gate configured in the simulation.
+    {
+        // Print the gate's name, type, output signal, input signals, logical expression, and delay.
+        cout << "Gate " << name << " with type " << gate.type << ", output " << gate.output
+            << ", input(s): ";
+        for (const auto& input : gate.inputs)
+        {
+            cout << input << " ";
+        }
+        cout << ", expression: " << gate.outputExpr << ", delay: " << gate.delay << endl;
+    }
+}
+
+
+// Parse the stimuli file to schedule initial events for the simulation.
+void GateSimulator::parseStim(const string& filename)
+{
+    // Attempt to open the stimuli file for reading.
+    ifstream file(filename);
+    // Check if the file opened successfully.
+    if (!file.is_open())
+    {
+        // If not, report the error and return early.
+        cerr << "Failed to open stimuli file: " << filename << endl;
+        return;
+    }
+
+    // Read the stimuli file to extract and schedule events.
+    string line;
+    int time, value;
+    string signal;
+
+    // Extract the time, signal, and value for each event in the stimuli file.
+    while (file >> time >> signal >> value)
+    {
+        // Print the parsed event information for debugging purposes.
+        cout << "Parsed event: Time = " << time << ", Signal = " << signal << ", Value = " << value << endl;
+
+        // Schedule the event by adding it to the events priority queue.
+        events.push(Event(time, signal, value));
+
+        // Associate the signal with the gates using it as an input and update the signal states.
+        if (signalToGates.find(signal) != signalToGates.end())
+        {
+            for (const auto& gateName : signalToGates[signal])
+            {
+                Gate& gate = gates[gateName];
+                // If the signal is an input to the gate, update the signal state.
+                if (gate.inputs.end() != find(gate.inputs.begin(), gate.inputs.end(), signal))
+                {
+                    signalStates[signal] = value;
+                }
+            }
+        }
+    }
+}
+
+
 // Initialize gate outputs based on the initial states of their input signals.
 void GateSimulator::initializeOutputs()
 {
@@ -132,6 +237,54 @@ void GateSimulator::initializeOutputs()
         signalStates[gate.output] = initOutputValue;
     }
 }
+
+
+// Start the simulation process by processing scheduled events.
+void GateSimulator::startSimulation()
+{
+    cout << "Simulation starting. Total initial events: " << events.size() << endl;
+
+    // Process each event in the priority queue until it's empty.
+    while (!events.empty())
+    {
+        Event currentEvent = events.top(); // Get the next event to process.
+        events.pop(); // Remove the event from the queue.
+        processEvents(currentEvent); // Process the event.
+    }
+
+    // Indicate that the simulation is complete and all events have been processed.
+    cout << "Simulation complete. No more events to process." << endl;
+    sortAndClean("simulation.sim"); // Sort the output file and remove duplicate entries.
+}
+
+
+// Print the initial state of all signals and gates for debugging purposes.
+void GateSimulator::printInitialState()
+{
+    cout << "Initial State:" << endl;
+    // Loop through each signal and print its initial value.
+    for (const auto& [signal, value] : signalStates)
+    {
+        cout << "Signal " << signal << " = " << value << endl;
+    }
+    // Print information about each gate configured in the simulation.
+    cout << "Gates:" << endl;
+    for (const auto& [name, gate] : gates)
+    {
+        cout << "Gate " << name << " with output " << gate.output << endl;
+    }
+}
+
+
+// Additional helper function to print detailed information about a gate.
+void GateSimulator::printGateInfo(const Gate& gate)
+{
+    // Print the gate's type, output signal, logical expression, and propagation delay.
+    cout << "Gate Type: " << gate.type << ", Output: " << gate.output
+        << ", Expression: " << gate.outputExpr << ", Delay: " << gate.delay << endl;
+}
+
+
 // Adapt a gate's expression from generic identifiers to actual signal names.
 string GateSimulator::adaptExpression(const string& expression, const vector<string>& inputs)
 {
@@ -222,6 +375,7 @@ vector<string> GateSimulator::infixToPostfix(const string& expression) const
     return output; // Return the converted postfix expression.
 }
 
+
 // Evaluate a logical expression given in postfix notation and return the result.
 int GateSimulator::evaluateExpression(const string& expression, const vector<string>& inputs)
 {
@@ -271,4 +425,156 @@ int GateSimulator::evaluateExpression(const string& expression, const vector<str
 
     // Return the result of the expression evaluation, which is the top value on the stack.
     return !evalStack.empty() ? evalStack.top() : 0;
+}
+
+
+// Write an event's details to the simulation output file.
+void GateSimulator::writeOutput(const string& signal, int value, int time)
+{
+    // Open the simulation output file in append mode to add new events.
+    ofstream simFile("simulation.sim", ios_base::app);
+    if (simFile.is_open())
+    {
+        // Write the event details to the file: time, signal, and value.
+        simFile << time << ", " << signal << ", " << value << endl;
+    }
+    else
+    {
+        // If the file cannot be opened, report the error.
+        cerr << "Failed to open .sim file for writing." << endl;
+    }
+}
+
+
+// Sort the simulation output file and remove duplicate entries.
+void GateSimulator::sortAndClean(const string& outputFile)
+{
+    // Open the output file for reading to collect all lines.
+    ifstream inputFile(outputFile);
+    if (!inputFile.is_open())
+    {
+        // If the file cannot be opened, report the error and return early.
+        cerr << "Failed to open output file: " << outputFile << endl;
+        return;
+    }
+
+    // Read all lines from the file into a vector.
+    vector<string> lines;
+    string line;
+    while (getline(inputFile, line))
+    {
+        lines.push_back(line);
+    }
+
+    // Close the input file after reading all lines.
+    inputFile.close();
+
+    // Sort the lines based on timestamps to ensure chronological order.
+    sort(lines.begin(), lines.end(), [](const string& a, const string& b)
+        {
+            istringstream issA(a), issB(b);
+    int timestampA, timestampB;
+    char comma;
+    issA >> timestampA >> comma; // Extract the timestamp from each line.
+    issB >> timestampB >> comma;
+    return timestampA < timestampB; // Compare timestamps for sorting.
+        });
+
+    // Remove duplicate lines from the vector.
+    auto last = unique(lines.begin(), lines.end());
+    lines.erase(last, lines.end());
+
+    // Open the output file for writing, this time clearing its contents before writing.
+    ofstream outputFileStream(outputFile, ofstream::out | ofstream::trunc);
+    if (!outputFileStream.is_open())
+    {
+        // If the file cannot be opened for writing, report the error and return early.
+        cerr << "Failed to open output file for writing: " << outputFile << endl;
+        return;
+    }
+
+    // Write the sorted and deduplicated lines back to the output file.
+    for (const auto& sortedLine : lines)
+    {
+        outputFileStream << sortedLine << '\n';
+    }
+
+    // Close the output file after writing.
+    outputFileStream.close();
+
+    // Inform the user that the output file has been sorted and cleaned.
+    cout << "Output file sorted and repetitions removed: " << outputFile << endl;
+}
+
+
+// Process a single event, updating signal states and potentially triggering new events.
+void GateSimulator::processEvents(const Event& currentEvent)
+{
+    // Log the details of the event being processed.
+    cout << "Processing event for signal: " << currentEvent.signal
+        << ", value: " << currentEvent.value
+        << ", at time: " << currentEvent.time << endl;
+
+    // Update the state of the signal involved in the event.
+    signalStates[currentEvent.signal] = currentEvent.value;
+
+    // Log the event details to the simulation output file.
+    writeOutput(currentEvent.signal, currentEvent.value, currentEvent.time);
+
+    // Check if the signal change affects any gates.
+    if (signalToGates.find(currentEvent.signal) != signalToGates.end())
+    {
+        // Loop through each gate affected by the signal change.
+        for (const auto& gateName : signalToGates[currentEvent.signal])
+        {
+            Gate& gate = gates[gateName]; // Reference to the affected gate.
+            // Log the gate being checked and its configuration for debugging.
+            cout << "Checking gate: " << gateName << " for signal: " << currentEvent.signal << endl;
+            cout << "Gate " << gateName << " expression: " << gate.outputExpr << endl;
+            cout << "Gate " << gateName << " inputs: ";
+            for (const auto& input : gate.inputs)
+            {
+                cout << input << "(" << signalStates[input] << ") ";
+            }
+            cout << endl;
+
+            // Debugging: Log the current signal states before evaluating the gate's output expression.
+            cout << "Signal states before evaluation: ";
+            for (const auto& [signal, value] : signalStates)
+            {
+                cout << signal << "(" << value << ") ";
+            }
+            cout << endl;
+
+            // Evaluate the gate's output expression to determine if the gate's output changes.
+            int oldOutputValue = signalStates[gate.output]; // The gate's output value before the event.
+            int newOutputValue = evaluateExpression(gate.outputExpr, gate.inputs); // The potential new output value.
+
+            // Log the result of the gate evaluation.
+            cout << "Gate " << gateName
+                << " Evaluated. Old Output: " << oldOutputValue
+                << ", New Output: " << newOutputValue << endl;
+
+            // If the gate's output has changed, schedule a new event to reflect this change.
+            if (oldOutputValue != newOutputValue)
+            {
+                cout << "Output change detected. Scheduling new event for " << gate.output
+                    << " at time " << (currentEvent.time + gate.delay)
+                    << " with value " << newOutputValue << endl;
+
+                // Update the gate's output signal state.
+                signalStates[gate.output] = newOutputValue;
+                // Add the new event to the events priority queue.
+                events.push(Event(currentEvent.time + gate.delay, gate.output, newOutputValue));
+
+                // Log the new event details to the simulation output file.
+                writeOutput(gate.output, newOutputValue, currentEvent.time + gate.delay);
+            }
+        }
+    }
+    else
+    {
+        // If the signal change does not affect any gates, log this information for debugging.
+        cout << "No gates associated with signal: " << currentEvent.signal << endl;
+    }
 }
