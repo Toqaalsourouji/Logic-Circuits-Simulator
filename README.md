@@ -1,4 +1,4 @@
-# Logic-Circuit-Simulator-DD1
+# Logic-Circuit-Simulator
 
 ## Group Members:
 1. Toqa Mahmoud Hassanien
